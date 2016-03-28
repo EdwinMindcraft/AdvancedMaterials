@@ -41,7 +41,7 @@ public class BlockNuclearReactor extends BlockContainer {
 	
 	@Override
 	public EnumWorldBlockLayer getBlockLayer() {
-		return EnumWorldBlockLayer.CUTOUT;
+		return EnumWorldBlockLayer.CUTOUT_MIPPED;
 	}
 	@Override
 	public boolean shouldSideBeRendered(IBlockAccess worldIn, BlockPos pos,

@@ -16,11 +16,13 @@ public class ItemNuclearReactorComponent extends Item {
 		this.component = component;
 		setUnlocalizedName(unlocalizedName);
 		setCreativeTab(AdvancedMaterials.tabNuclearComponents);
+		setMaxStackSize(1);
 		setMaxDamage(component.maxAbsorbedHeat == -1 ? component.duration : component.maxAbsorbedHeat);
 	}
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+		tooltip.add(StatCollector.translateToLocal("advmat.component.nuclear"));
 		if (component.heat != 0)
 			tooltip.add(StatCollector.translateToLocal("advmat.component.heat").replaceAll("%%v", "" + component.heat));
 		if (component.cool != 0)
@@ -38,9 +40,9 @@ public class ItemNuclearReactorComponent extends Item {
 		if (component.powerMul != 1f)
 			tooltip.add(StatCollector.translateToLocal("advmat.component.powerMul").replaceAll("%%v", "" + component.powerMul));
 		if (component.minTemperature != -1)
-			tooltip.add(StatCollector.translateToLocal("advmat.component.minTemperature").replaceAll("%%v", "" + component.minTemperature));
+			tooltip.add(StatCollector.translateToLocal("advmat.component.minTemperature").replaceAll("%%v", "" + (float)component.minTemperature / 10 + " °C"));
 		if (component.maxTemperature != -1)
-			tooltip.add(StatCollector.translateToLocal("advmat.component.minTemperature").replaceAll("%%v", "" + component.maxTemperature));
+			tooltip.add(StatCollector.translateToLocal("advmat.component.minTemperature").replaceAll("%%v", "" + (float)component.maxTemperature / 10 + " °C"));
 		if (component.maxAbsorbedHeat != -1)
 			tooltip.add(StatCollector.translateToLocal("advmat.component.maxAbsorbedHeat").replaceAll("%%v", "" + component.maxAbsorbedHeat));
 		if (component.fromHull)

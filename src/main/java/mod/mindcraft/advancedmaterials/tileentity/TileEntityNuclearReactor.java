@@ -1,6 +1,13 @@
 package mod.mindcraft.advancedmaterials.tileentity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import mod.mindcraft.advancedmaterials.integration.component.ItemNuclearReactorComponent;
+import mod.mindcraft.advancedmaterials.integration.component.ItemNuclearReactorFluidComponent;
+import mod.mindcraft.advancedmaterials.integration.recipes.NuclearFusionRecipe;
+import mod.mindcraft.advancedmaterials.integration.registry.NuclearFusionRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -13,9 +20,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ITickable;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fluids.IFluidTank;
 import cofh.api.energy.IEnergyProvider;
 
-public class TileEntityNuclearReactor extends TileEntity implements ISidedInventory, ITickable, IEnergyProvider {
+public class TileEntityNuclearReactor extends TileEntity implements ISidedInventory, ITickable, IEnergyProvider, IFluidHandler, IFluidTank {
 	
 	public ItemStack[] stack = new ItemStack[54];
 	public int[] stackHeat = new int[54];
@@ -23,6 +35,7 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 	public int prevTemp = 200;
 	public int energy = 0;
 	public int prevEnergy = 0;
+	public FluidStack storedFluid;
 	
 	public TileEntityNuclearReactor() {
 		
@@ -176,6 +189,8 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			for (int j = 0; j < 9; j++) {
 				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorComponent) {
 					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
+					if ((item.component.maxTemperature == -1 ? Integer.MAX_VALUE : item.component.maxTemperature) < hullHeat || (item.component.minTemperature == -1 ? Integer.MIN_VALUE : item.component.minTemperature) > hullHeat)
+						continue;
 					heatMap[i][j] += calcHeat(item, map, i, j);
 					heatMap[i][j] = transferHeat(item, map, heatMap, i, j);
 					//System.out.println(heatMap[i][j]);
@@ -191,6 +206,8 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			for (int j = 0; j < 9; j++) {
 				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorComponent) {
 					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
+					if ((item.component.maxTemperature == -1 ? Integer.MAX_VALUE : item.component.maxTemperature) < hullHeat || (item.component.minTemperature == -1 ? Integer.MIN_VALUE : item.component.minTemperature) > hullHeat)
+						continue;
 					dissipateHeat(item, map, heatMap, i, j);
 					hullHeat += Math.max(heatMap[i][j] - this.stackHeat[i * 9 + j], 0);
 				}
@@ -201,20 +218,22 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			for (int j = 0; j < 9; j++) {
 				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorComponent) {
 					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
+					if ((item.component.maxTemperature == -1 ? Integer.MAX_VALUE : item.component.maxTemperature) < hullHeat || (item.component.minTemperature == -1 ? Integer.MIN_VALUE : item.component.minTemperature) > hullHeat)
+						continue;
 					if (item.component.duration != -1) {
 						map[i][j].setItemDamage(map[i][j].getItemDamage() + 1);
-						if (map[i][j].getItemDamage() > item.component.duration)
+						if (map[i][j].getItemDamage() >= item.component.duration)
 							map[i][j] = null;
 					}
 					if (item.component.maxAbsorbedHeat != -1) {
 						map[i][j].setItemDamage(heatMap[i][j]);
-						if (map[i][j].getItemDamage() > item.component.maxAbsorbedHeat)
+						if (map[i][j].getItemDamage() >= item.component.maxAbsorbedHeat)
 							map[i][j] = null;
 					}
 				}
 			}
 		}
-		
+				
 		if (hullHeat > 100000)
 			worldObj.createExplosion(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 40F, true);
 		
@@ -228,6 +247,57 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 		if (hullHeat < 0)
 			hullHeat = 0;
 
+		
+		ArrayList<FluidStack> fluids = new ArrayList<FluidStack>();
+		HashMap<Integer, FluidStack> fluidMap = new HashMap<Integer, FluidStack>();
+		
+		for (int i = 0; i < 6; i++) {
+			for (int j = 0; j < 9; j++) {
+				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorFluidComponent) {
+					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
+					//System.out.println((item.component.maxTemperature == -1 ? Integer.MIN_VALUE : item.component.maxTemperature) < hullHeat);
+					if ((item.component.maxTemperature == -1 ? Integer.MAX_VALUE : item.component.maxTemperature) < hullHeat || (item.component.minTemperature == -1 ? Integer.MIN_VALUE : item.component.minTemperature) > hullHeat)
+						continue;
+					//System.out.println("Working");
+					FluidStack stack = ((ItemNuclearReactorFluidComponent)map[i][j].getItem()).getFluid(map[i][j]);
+					boolean inputed = false;
+					for (int k = 0; k < fluids.size(); k++) {
+						if (fluids.get(k).getFluid().equals(stack.getFluid())) {
+							inputed = true;
+							fluids.set(k, new FluidStack(fluids.get(k).getFluid(), fluids.get(k).amount + stack.amount));
+						}
+					}
+					if (!inputed)
+						fluids.add(stack);
+					//System.out.println(stack.getFluid().getName());
+					fluidMap.put(i * 9 + j, stack);
+				}
+			}
+		}
+		
+		FluidStack[] array = new FluidStack[fluids.size()];
+		for (int i = 0; i < fluids.size(); i++) {
+			array[i] = fluids.get(i);
+		}
+		
+		NuclearFusionRecipe recipe = NuclearFusionRegistry.getRecipe(array);
+		//System.out.println(recipe == null);
+		if (recipe != null && (storedFluid == null || (recipe.getOutput().getFluid().equals(storedFluid.getFluid()) && recipe.getOutput().amount + storedFluid.amount <= getCapacity()))) {
+			for (FluidStack stack : recipe.getInputs()) {
+				for(Entry<Integer, FluidStack> entry : fluidMap.entrySet()) {
+					if (entry.getValue().containsFluid(stack)) {
+						this.stack[entry.getKey()].setItemDamage(this.stack[entry.getKey()].getItemDamage() + stack.amount);
+						if (((ItemNuclearReactorFluidComponent)this.stack[entry.getKey()].getItem()).getFluid(this.stack[entry.getKey()]).amount <= 0)
+							this.stack[entry.getKey()] = null;
+						break;
+					}
+				}
+			}
+			if (storedFluid == null)
+				storedFluid = recipe.getOutput().copy();
+			else 
+				storedFluid.amount += recipe.getOutput().amount;
+		}
 		worldObj.markBlockForUpdate(pos);
 	}
 	
@@ -357,6 +427,9 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 		compound.setInteger("PrevHullHeat", prevTemp);
 		compound.setInteger("Energy", energy);
 		compound.setInteger("PrevEnergy", prevEnergy);
+		NBTTagCompound nbt = new NBTTagCompound();
+		if (storedFluid != null)
+			storedFluid.writeToNBT(nbt);
 		for (int i = 0; i < stack.length; i++) {
 			if (stack[i] == null)
 				continue;
@@ -366,6 +439,7 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			tmp.setInteger("Heat", stackHeat[i]);
 			list.appendTag(tmp);
 		}
+		compound.setTag("Fluid", nbt);
 		compound.setTag("Inventory", list);
 	}
 	
@@ -376,6 +450,7 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 		prevTemp = compound.getInteger("PrevHullHeat");
 		energy = compound.getInteger("Energy");
 		prevEnergy = compound.getInteger("PrevEnergy");
+		storedFluid = FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("Fluid"));
 		NBTTagList list = compound.getTagList("Inventory", 10);
 		if (list == null)
 			return;
@@ -384,5 +459,67 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			stack[nbt.getShort("Slot")] = ItemStack.loadItemStackFromNBT(nbt);
 			stackHeat[nbt.getShort("Slot")] = nbt.getInteger("Heat");
 		}
+	}
+	
+	//TODO Fluid
+	
+	@Override
+	public int fill(EnumFacing from, FluidStack resource, boolean doFill) {
+		return 0;
+	}
+
+	@Override
+	public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain) {
+		return null;
+	}
+
+	@Override
+	public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain) {
+		return null;
+	}
+
+	@Override
+	public boolean canFill(EnumFacing from, Fluid fluid) {
+		return false;
+	}
+
+	@Override
+	public boolean canDrain(EnumFacing from, Fluid fluid) {
+		return true;
+	}
+
+	@Override
+	public FluidTankInfo[] getTankInfo(EnumFacing from) {
+		return new FluidTankInfo[] {getInfo()};
+	}
+
+	@Override
+	public FluidStack getFluid() {
+		return null;
+	}
+
+	@Override
+	public int getFluidAmount() {
+		return 0;
+	}
+
+	@Override
+	public int getCapacity() {
+		return 16000;
+	}
+
+	@Override
+	public FluidTankInfo getInfo() {
+		return new FluidTankInfo(this);
+	}
+
+	@Override
+	public int fill(FluidStack resource, boolean doFill) {
+		return 0;
+	}
+
+	@Override
+	public FluidStack drain(int maxDrain, boolean doDrain) {
+		return null;
 	}
 }

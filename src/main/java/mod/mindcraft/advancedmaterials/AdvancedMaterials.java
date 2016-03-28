@@ -11,7 +11,9 @@ import mod.mindcraft.advancedmaterials.blocks.BlockNuclearReactor;
 import mod.mindcraft.advancedmaterials.integration.MetalRegistry;
 import mod.mindcraft.advancedmaterials.integration.component.NuclearReactorComponent;
 import mod.mindcraft.advancedmaterials.integration.recipes.CentrifugeRecipe;
+import mod.mindcraft.advancedmaterials.integration.recipes.NuclearFusionRecipe;
 import mod.mindcraft.advancedmaterials.integration.registry.CentrifugeRegistry;
+import mod.mindcraft.advancedmaterials.integration.registry.NuclearFusionRegistry;
 import mod.mindcraft.advancedmaterials.integration.registry.NuclearReactorComponentRegistry;
 import mod.mindcraft.advancedmaterials.items.ItemMaterials;
 import mod.mindcraft.advancedmaterials.plugin.TinkersPlugin;
@@ -26,6 +28,7 @@ import mod.mindcraft.advancedmaterials.utils.ItemModelLocation;
 import mod.mindcraft.advancedmaterials.utils.MetalDefinition;
 import mod.mindcraft.advancedmaterials.worldgen.WorldGenerator;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -34,9 +37,12 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fluids.BlockFluidFinite;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -144,6 +150,30 @@ public class AdvancedMaterials {
 		MetalRegistry.registerMetal(new MetalDefinition(0xcccccc, "Platinum").generateOre(3, 4, 1), "Platinium");
 		MetalRegistry.registerMetal(new MetalDefinition(0x5e9100, "Uranium").generateOre(3, 4, 1));
 		
+		Fluid deuterium = new Fluid("deuterium", new ResourceLocation(AdvancedMaterials.MODID, "blocks/deuterium_still"), new ResourceLocation(AdvancedMaterials.MODID, "blocks/deuterium_flow"));
+		Fluid tritium = new Fluid("tritium", new ResourceLocation(AdvancedMaterials.MODID, "blocks/tritium_still"), new ResourceLocation(AdvancedMaterials.MODID, "blocks/tritium_flow"));
+		Fluid heliumPlasma = new Fluid("helium.plasma", new ResourceLocation(AdvancedMaterials.MODID, "blocks/heliumPlasma_still"), new ResourceLocation(AdvancedMaterials.MODID, "blocks/heliumPlasma_flow"));
+		
+		BlockFluidFinite tritiumBlock = new BlockFluidFinite(tritium, Material.water);
+		BlockFluidFinite deuteriumBlock = new BlockFluidFinite(deuterium, Material.water);
+		BlockFluidFinite heliumPlasmaBlock = new BlockFluidFinite(heliumPlasma, Material.water);
+		
+		FluidRegistry.registerFluid(tritium);
+		FluidRegistry.registerFluid(deuterium);
+		FluidRegistry.registerFluid(heliumPlasma);
+
+		GameRegistry.registerBlock(deuteriumBlock, "blockDeuterium");
+		GameRegistry.registerBlock(tritiumBlock, "blockTritium");
+		GameRegistry.registerBlock(heliumPlasmaBlock, "blockHeliumPlasma");
+		
+		FluidRegistry.addBucketForFluid(tritium);
+		FluidRegistry.addBucketForFluid(deuterium);
+		FluidRegistry.addBucketForFluid(heliumPlasma);
+		
+		fluidsBlocks.add("deuterium");
+		fluidsBlocks.add("tritium");
+		fluidsBlocks.add("helium.plasma");
+		
 		//Uranium
 		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(5, 100, 1.5F, 2F, 36000), "uraniumCell", "cell.uranium", new ModelResourceLocation(MODID + ":uraniumCell", "inventory"));
 		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(15, 400, 3F, 4F, 36000), "uraniumCellDual", "cell.uranium.dual", new ModelResourceLocation(MODID + ":uraniumCellDual", "inventory"));
@@ -160,6 +190,11 @@ public class AdvancedMaterials {
 		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createHeatDispatcher(400, 100, 64000), "basicHeatDisplatcher", "dispatcher.basic", new ModelResourceLocation(MODID + ":basicHeatDispatcher", "inventory"));
 		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createHeatDispatcher(1600, 400, 128000), "advancedHeatDisplatcher", "dispatcher.advanced", new ModelResourceLocation(MODID + ":advancedHeatDispatcher", "inventory"));
 		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createHullHeatInterface(200, 50, 32000), "reactorHeatDisplatcher", "dispatcher.reactor", new ModelResourceLocation(MODID + ":reactorHeatDispatcher", "inventory"));
+		//Fusion Fuels
+		NuclearReactorComponentRegistry.defineFluidComponent(new NuclearReactorComponent(0, 0, 0, 0, 0, 1.0F, 1.0F, 1.0F, 50000, 75000, -1, -1), new FluidStack(deuterium, 1000), "deuteriumCell", "cell.deuterium", new ModelResourceLocation(MODID + ":deuteriumCell", "inventory"));
+		NuclearReactorComponentRegistry.defineFluidComponent(new NuclearReactorComponent(0, 0, 0, 0, 0, 1.0F, 1.0F, 1.0F, 50000, 75000, -1, -1), new FluidStack(tritium, 1000), "tritiumCell", "cell.tritium", new ModelResourceLocation(MODID + ":tritiumCell", "inventory"));
+		
+		NuclearFusionRegistry.addRecipe(new NuclearFusionRecipe(new FluidStack(heliumPlasma, 1), new FluidStack(tritium, 1), new FluidStack(deuterium, 1)));
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
 		GameRegistry.registerWorldGenerator(new WorldGenerator(), 1);

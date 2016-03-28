@@ -33,8 +33,6 @@ public class NuclearReactorComponent {
 	public NuclearReactorComponent(int heat, int cool, int power, int absorption, int distrib, float heatMul, float coolMul, float powerMul, int minTemperature, int maxTemperature, int maxAbsorbedHeat, int duration) {
 		if (duration != -1 && maxAbsorbedHeat != -1)
 			throw new IllegalArgumentException("Duration and Max Absorbed Heat cannot be both used at the same time");
-		if (duration == -1 && maxAbsorbedHeat == -1)
-			throw new IllegalArgumentException("Duration and Max Absorbed Heat cannot be both null");		
 		this.heat = heat;
 		this.cool = cool;
 		this.power = power;

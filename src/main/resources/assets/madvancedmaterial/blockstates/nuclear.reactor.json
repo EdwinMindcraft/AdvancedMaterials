@@ -1,5 +1,5 @@
 {
 	"variants": {
-		"normal": {"model":"madvancedmaterial:nuclear.reactor"}
+		"normal": {"model":"madvancedmaterial:nuclear.reactor", "uvlock":true}
 	}
 }

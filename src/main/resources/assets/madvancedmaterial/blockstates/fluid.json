@@ -4,157 +4,24 @@
 		"model": "forge:fluid"
 	},
 	"variants": {
-		"molten.copper": [
+		"deuterium": [
 			{
 				"custom": {
-					"fluid": "molten.copper"
+					"fluid": "deuterium"
 				}
 			}
 		],
-		"molten.tin": [
+		"tritium": [
 			{
 				"custom": {
-					"fluid": "molten.tin"
+					"fluid": "tritium"
 				}
 			}
 		],
-		"molten.aluminum": [
+		"helium.plasma": [
 			{
 				"custom": {
-					"fluid": "molten.aluminum"
-				}
-			}
-		],
-		"molten.bronze": [
-			{
-				"custom": {
-					"fluid": "molten.bronze"
-				}
-			}
-		],
-		"molten.advanced.iron": [
-			{
-				"custom": {
-					"fluid": "molten.advanced.iron"
-				}
-			}
-		],
-		"molten.iron": [
-			{
-				"custom": {
-					"fluid": "molten.iron"
-				}
-			}
-		],
-		"molten.crystal": [
-			{
-				"custom": {
-					"fluid": "molten.crystal"
-				}
-			}
-		],
-		"molten.magmatite": [
-			{
-				"custom": {
-					"fluid": "molten.magmatite"
-				}
-			}
-		],
-		"molten.diamond": [
-			{
-				"custom": {
-					"fluid": "molten.diamond"
-				}
-			}
-		],
-		"molten.garnet": [
-			{
-				"custom": {
-					"fluid": "molten.garnet"
-				}
-			}
-		],
-		"molten.amethyst": [
-			{
-				"custom": {
-					"fluid": "molten.amethyst"
-				}
-			}
-		],
-		"molten.ruby": [
-			{
-				"custom": {
-					"fluid": "molten.ruby"
-				}
-			}
-		],
-		"molten.sapphire": [
-			{
-				"custom": {
-					"fluid": "molten.sapphire"
-				}
-			}
-		],
-		"molten.gold": [
-			{
-				"custom": {
-					"fluid": "molten.gold"
-				}
-			}
-		],
-		"molten.peridot": [
-			{
-				"custom": {
-					"fluid": "molten.peridot"
-				}
-			}
-		],
-		"molten.emerald": [
-			{
-				"custom": {
-					"fluid": "molten.emerald"
-				}
-			}
-		],
-		"molten.titanium": [
-			{
-				"custom": {
-					"fluid": "molten.titanium"
-				}
-			}
-		],
-		"molten.chromium": [
-			{
-				"custom": {
-					"fluid": "molten.chromium"
-				}
-			}
-		],
-		"molten.silicium": [
-			{
-				"custom": {
-					"fluid": "molten.silicium"
-				}
-			}
-		],
-		"molten.silicon": [
-			{
-				"custom": {
-					"fluid": "molten.silicon"
-				}
-			}
-		],
-		"molten.quartz": [
-			{
-				"custom": {
-					"fluid": "molten.quartz"
-				}
-			}
-		],
-		"molten.coal": [
-			{
-				"custom": {
-					"fluid": "molten.coal"
+					"fluid": "helium.plasma"
 				}
 			}
 		]
