@@ -1,0 +1,16 @@
+[
+{
+  "modid": "madvancedmaterial",
+  "name": "Advanced Materials",
+  "description": "Mod that adds a whole bunch of materials",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["EdwinMindcraft"],
+  "credits": "Forge devs for well... forge.",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

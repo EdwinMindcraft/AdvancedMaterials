@@ -1,0 +1,33 @@
+{
+    "textures": {
+		"bg":"madvancedmaterial:blocks/oreGemBG",
+		"metal":"madvancedmaterial:blocks/oreGem",
+        "particle": "madvancedmaterial:blocks/oreGemBG"
+    },
+    "elements": [
+        {
+			"from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "texture": "#bg", "cullface": "down"},
+                "up":    { "texture": "#bg", "cullface": "up"},
+                "north": { "texture": "#bg", "cullface": "north"},
+                "south": { "texture": "#bg", "cullface": "south"},
+                "west":  { "texture": "#bg", "cullface": "west"},
+                "east":  { "texture": "#bg", "cullface": "east"}
+            }
+        },
+		{
+			"from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "texture": "#metal", "cullface": "down", "tintindex": 0 },
+                "up":    { "texture": "#metal", "cullface": "up", "tintindex": 0 },
+                "north": { "texture": "#metal", "cullface": "north", "tintindex": 0 },
+                "south": { "texture": "#metal", "cullface": "south", "tintindex": 0 },
+                "west":  { "texture": "#metal", "cullface": "west", "tintindex": 0 },
+                "east":  { "texture": "#metal", "cullface": "east", "tintindex": 0 }
+            }
+        }
+    ]
+}

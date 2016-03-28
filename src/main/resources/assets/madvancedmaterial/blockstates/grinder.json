@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"axis=x": {"model":"madvancedmaterial:grinder"},
+		"axis=z": {"model":"madvancedmaterial:grinder", "y"=90}
+	}
+}

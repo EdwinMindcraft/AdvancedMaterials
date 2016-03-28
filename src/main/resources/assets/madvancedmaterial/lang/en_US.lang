@@ -1,0 +1,88 @@
+itemGroup.tabAdvMat=Advanced Materials
+advmat.alloyrecipe=Alloy Forge
+advmat.grinder=Grinder
+advmat.centrifuge=Centrifuge
+advmat.crystallizerrecipe=Crystallizer
+
+tile.advmat.alloyforge.name=Alloy Forge
+tile.advmat.grinder.name=Grinder
+tile.advmat.centrifuge.name=Centrifuge
+tile.advmat.crystallizer.name=Crystallizer
+
+tile.advmat.block.name=%%mat Block
+tile.advmat.ore.name=%%mat Ore
+item.nugget.name=%%mat Nugget
+item.ingot.name=%%mat Ingot
+item.gem.name=%%mat
+item.dust.name=%%mat Dust
+item.tinyDust.name=%%mat Tiny Dust
+item.impureDust.name=%%mat Impure Dust
+item.shovel.name=%%mat Shovel
+item.pickaxe.name=%%mat Pickaxe
+item.hoe.name=%%mat Hoe
+item.axe.name=%%mat Axe
+item.sword.name=%%mat Sword
+item.armor.helmet.name=%%mat Helmet
+item.armor.chestplate.name=%%mat Chestplate
+item.armor.leggings.name=%%mat Leggings
+item.armor.boots.name=%%mat Boots
+
+advmat.component.heat=§r§9Heat Production : §c%%v§9 per tick
+advmat.component.cool=§r§9Heat Reduction : §b%%v§9 per tick
+advmat.component.power=§r§9Power Generation : §4%%v§9 RF/t
+advmat.component.distrib=§r§9Maximum Heat Distribution : §c%%v§9 per tick
+advmat.component.absorption=§r§9Maximum Heat Absorption : §b%%v§9 per tick
+advmat.component.heatMul=§r§9Heat Multiplier : §c%%vx
+advmat.component.coolMul=§r§9Cooling Multiplier : §b%%vx
+advmat.component.powerMul=§r§9Power Multiplier : §4%%vx
+advmat.component.minTemperature=§r§9Minimum Operation Temperature : §c%%v
+advmat.component.maxTemperature=§r§9Maximum Operation Temperature : §c%%v
+advmat.component.maxAbsorbedHeat=§r§9Maximum Absorbed Heat : §c%%v
+advmat.component.duration=§r§9Lifetime : §2%%v§9 ticks §2(%%time)
+advmat.component.produce=§r§9Will Produce : §4%%v§9 RF
+advmat.component.cost=§r§9Will Cost : §4%%v§9 RF
+advmat.component.heatTotal=§r§9Heat Produced over §2%%time §9ticks : §c%%v
+
+
+advmat.ruby=Ruby
+advmat.sapphire=Sapphire
+advmat.amethyst=Amethyst
+advmat.peridot=Peridot
+advmat.copper=Copper
+advmat.tin=Tin
+advmat.aluminum=Aluminum
+advmat.garnet=Garnet
+advmat.bronze=Bronze
+advmat.crystal=Crystal
+advmat.advancediron=Advanced Iron
+advmat.magmatite=Magmatite
+advmat.emerald=Emerald
+advmat.diamond=Diamond
+advmat.iron=Iron
+advmat.gold=Gold
+advmat.chrome=Chrome
+advmat.titanium=Titanium
+advmat.silicium=Silicium
+advmat.silicon=Silicon
+advmat.coal=Coal
+advmat.quartz=Quartz
+
+material.ruby.name=Ruby
+material.sapphire.name=Sapphire
+material.amethyst.name=Amethyst
+material.peridot.name=Peridot
+material.garnet.name=Garnet
+material.crystal.name=Crystal
+material.chromium.name=Chrome
+material.titanium.name=Titanium
+material.silicon.name=Silicon
+material.magmatite.name=Magmatite
+
+modifier.polishing.name=Polishing
+modifier.polishing.desc=§oShine more!§r\nYour tool starts with 50% less durability but the durability will increase each time you repair to cap at 300% durability.
+
+modifier.sharpening.name=Sharpening
+modifier.sharpening.desc=§oWho needs sharpening kits?§r\nYour tool starts with 50% less attack and speed but the attack and speed will increase each time you repair to cap at 300% attack and speed.
+
+modifier.coalfueled.name=Coal Fueled
+modifier.coalfueled.desc=§oPower!§r\nYour tool will absorb burnables for durability.\nFormula : Fuel value / 100 * level

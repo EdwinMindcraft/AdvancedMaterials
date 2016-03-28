@@ -1,0 +1,6 @@
+{
+    "parent": "madvancedmaterial:block/cube_all_tinted",
+    "textures": {
+		"all":"madvancedmaterial:blocks/block"
+    }
+}
