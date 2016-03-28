@@ -144,13 +144,23 @@ public class AdvancedMaterials {
 		MetalRegistry.registerMetal(new MetalDefinition(0xcccccc, "Platinum").generateOre(3, 4, 1), "Platinium");
 		MetalRegistry.registerMetal(new MetalDefinition(0x5e9100, "Uranium").generateOre(3, 4, 1));
 		
-		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(5, 20, 2.25F, 2F, 36000), "uraniumCell", "cell.uranium", new ModelResourceLocation(MODID + ":uraniumCell", "inventory"));
-		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(22, 160, 5.0625F, 4F, 36000), "uraniumCellDual", "cell.uranium.dual", new ModelResourceLocation(MODID + ":uraniumCellDual", "inventory"));
-		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(202, 640, 25.62890625F, 16F, 36000), "uraniumCellQuad", "cell.uranium.quad", new ModelResourceLocation(MODID + ":uraniumCellQuad", "inventory"));
-		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(10, 20, 8000), "coolantCell", "cell.coolant", new ModelResourceLocation(MODID + ":coolantCell", "inventory"));
-		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(30, 60, 16000), "coolantCellTriple", "cell.coolant.triple", new ModelResourceLocation(MODID + ":coolantCellTriple", "inventory"));
-		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(60, 120, 32000), "coolantCellHexa", "cell.coolant.hexa", new ModelResourceLocation(MODID + ":coolantCellHexa", "inventory"));
-			
+		//Uranium
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(5, 100, 1.5F, 2F, 36000), "uraniumCell", "cell.uranium", new ModelResourceLocation(MODID + ":uraniumCell", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(15, 400, 3F, 4F, 36000), "uraniumCellDual", "cell.uranium.dual", new ModelResourceLocation(MODID + ":uraniumCellDual", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createFuel(67, 3200, 13.5F, 16F, 36000), "uraniumCellQuad", "cell.uranium.quad", new ModelResourceLocation(MODID + ":uraniumCellQuad", "inventory"));
+		//Tier 1 Coolant (Water)
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(10, 20, 16000), "coolantCell", "cell.coolant", new ModelResourceLocation(MODID + ":coolantCell", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(30, 60, 32000), "coolantCellTriple", "cell.coolant.triple", new ModelResourceLocation(MODID + ":coolantCellTriple", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(60, 120, 64000), "coolantCellHexa", "cell.coolant.hexa", new ModelResourceLocation(MODID + ":coolantCellHexa", "inventory"));
+		//Tier 2 Coolant
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(60, 120, 64000), "coolantCellTier2", "cell.coolant.tier2", new ModelResourceLocation(MODID + ":coolantCellTier2", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(180, 360, 128000), "coolantCellTier2Triple", "cell.coolant.tier2.triple", new ModelResourceLocation(MODID + ":coolantCellTier2Triple", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createCoolant(360, 720, 256000), "coolantCellTier2Hexa", "cell.coolant.tier2.hexa", new ModelResourceLocation(MODID + ":coolantCellTier2Hexa", "inventory"));
+		//Heat Exchangers
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createHeatDispatcher(400, 100, 64000), "basicHeatDisplatcher", "dispatcher.basic", new ModelResourceLocation(MODID + ":basicHeatDispatcher", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createHeatDispatcher(1600, 400, 128000), "advancedHeatDisplatcher", "dispatcher.advanced", new ModelResourceLocation(MODID + ":advancedHeatDispatcher", "inventory"));
+		NuclearReactorComponentRegistry.defineComponent(NuclearReactorComponent.createHullHeatInterface(200, 50, 32000), "reactorHeatDisplatcher", "dispatcher.reactor", new ModelResourceLocation(MODID + ":reactorHeatDispatcher", "inventory"));
+		
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
 		GameRegistry.registerWorldGenerator(new WorldGenerator(), 1);
 		
@@ -209,6 +219,7 @@ public class AdvancedMaterials {
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(GameRegistry.findItem(MODID, "grinder"), 0, new ModelResourceLocation(MODID + ":grinder", "inventory"));
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(GameRegistry.findItem(MODID, "centrifuge"), 0, new ModelResourceLocation(MODID + ":centrifuge", "inventory"));
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(GameRegistry.findItem(MODID, "crystallizer"), 0, new ModelResourceLocation(MODID + ":crystallizer", "inventory"));
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(GameRegistry.findItem(MODID, "nuclear.reactor"), 0, new ModelResourceLocation(MODID + "nuclear.reactor", "inventory"));
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(crystalTube, 0, new ModelResourceLocation(MODID + ":crystalTube", "inventory"));
 		}
 		

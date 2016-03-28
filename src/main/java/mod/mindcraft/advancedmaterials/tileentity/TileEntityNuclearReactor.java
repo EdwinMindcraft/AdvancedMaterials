@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
@@ -19,7 +20,9 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 	public ItemStack[] stack = new ItemStack[54];
 	public int[] stackHeat = new int[54];
 	public int hullHeat = 200;
+	public int prevTemp = 200;
 	public int energy = 0;
+	public int prevEnergy = 0;
 	
 	public TileEntityNuclearReactor() {
 		
@@ -128,7 +131,7 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 
 	@Override
 	public int getMaxEnergyStored(EnumFacing from) {
-		return 1000000;
+		return 10000000;
 	}
 
 	@Override
@@ -146,26 +149,40 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 
 	@Override
 	public void update() {
+		if (worldObj.isRemote)
+			return;
 		ItemStack[][] map = new ItemStack[6][9];
-		if (worldObj.getBiomeGenForCoords(pos).temperature * 250 > hullHeat)
-			hullHeat += Math.min(worldObj.getBiomeGenForCoords(pos).temperature * 10 * ((hullHeat - worldObj.getBiomeGenForCoords(pos).temperature * 250) / 10000), 5);
-		else if (worldObj.getBiomeGenForCoords(pos).temperature * 250 < hullHeat)
-			hullHeat -= Math.min(((2F - worldObj.getBiomeGenForCoords(pos).temperature) * 10) * ((hullHeat - worldObj.getBiomeGenForCoords(pos).temperature * 250) / 10000), 5);
+		this.prevTemp = this.hullHeat;
+		this.prevEnergy = this.energy;
+		if (worldObj.getBiomeGenForCoords(pos).temperature * (worldObj.isRaining() ? 200 : 250) > hullHeat)
+			hullHeat += Math.min(worldObj.getBiomeGenForCoords(pos).temperature * 10 * ((hullHeat - worldObj.getBiomeGenForCoords(pos).temperature * (worldObj.isRaining() ? 200 : 250)) / 10000), 5);
+		else if (worldObj.getBiomeGenForCoords(pos).temperature * (worldObj.isRaining() ? 200 : 250) < hullHeat)
+			hullHeat -= Math.min(((2F - worldObj.getBiomeGenForCoords(pos).temperature) * 10) * ((hullHeat - worldObj.getBiomeGenForCoords(pos).temperature * (worldObj.isRaining() ? 200 : 250)) / 10000), 5);
 		int[][] heatMap = new int[6][9];
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < 9; j++) {
 				map[i][j] = this.stack[i * 9 + j];
 				heatMap[i][j] = this.stackHeat[i * 9 + j];
+				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorComponent) {
+					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
+					if (item.component.maxAbsorbedHeat != -1) {
+						heatMap[i][j] = map[i][j].getItemDamage();
+						stackHeat[i*9+j] = map[i][j].getItemDamage();
+					}
+				}
 			}
 		}
-		
 		for (int i = 0; i < 6; i++) {
 			for (int j = 0; j < 9; j++) {
 				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorComponent) {
 					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
-					int heat = calcHeat(item, map, i, j);
-					int rest = transferHeat(item, map, heatMap, i, j, heat);
-					hullHeat += rest;
+					heatMap[i][j] += calcHeat(item, map, i, j);
+					heatMap[i][j] = transferHeat(item, map, heatMap, i, j);
+					//System.out.println(heatMap[i][j]);
+					//System.out.println(heatMap[i][j] + " " + this.stackHeat[i * 9 + j]);
+					energy += calcPower(item, map, i, j);
+					if (energy > getMaxEnergyStored(EnumFacing.UP))
+						energy = getMaxEnergyStored(EnumFacing.UP);
 				}
 			}
 		}
@@ -174,28 +191,54 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			for (int j = 0; j < 9; j++) {
 				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorComponent) {
 					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
-					if (item.component.cool != 0)
-						dissipateHeat(item, map, heatMap, i, j);
+					dissipateHeat(item, map, heatMap, i, j);
+					hullHeat += Math.max(heatMap[i][j] - this.stackHeat[i * 9 + j], 0);
+				}
+			}
+		}
+		
+		for (int i = 0; i < 6; i++) {
+			for (int j = 0; j < 9; j++) {
+				if (map[i][j] != null && map[i][j].getItem() instanceof ItemNuclearReactorComponent) {
+					ItemNuclearReactorComponent item = (ItemNuclearReactorComponent) map[i][j].getItem();
 					if (item.component.duration != -1) {
 						map[i][j].setItemDamage(map[i][j].getItemDamage() + 1);
+						if (map[i][j].getItemDamage() > item.component.duration)
+							map[i][j] = null;
+					}
+					if (item.component.maxAbsorbedHeat != -1) {
+						map[i][j].setItemDamage(heatMap[i][j]);
+						if (map[i][j].getItemDamage() > item.component.maxAbsorbedHeat)
+							map[i][j] = null;
 					}
 				}
 			}
 		}
 		
+		if (hullHeat > 100000)
+			worldObj.createExplosion(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 40F, true);
+		
+		for (int i = 0; i < 6; i++) {
+			for (int j = 0; j < 9; j++) {
+				this.stack[i * 9 + j] = map[i][j];
+				this.stackHeat[i * 9 + j] = heatMap[i][j];
+			}
+		}
+		
 		if (hullHeat < 0)
 			hullHeat = 0;
+
 		worldObj.markBlockForUpdate(pos);
 	}
 	
-	private int transferHeat(ItemNuclearReactorComponent item, ItemStack[][] map, int[][] heatMap, int x, int y, int heat) {
+	private int transferHeat(ItemNuclearReactorComponent item, ItemStack[][] map, int[][] heatMap, int x, int y) {
 		int num = 0;
-		int newHeat = heat;
+		int heat = heatMap[x][y] * 1;
+		int newHeat = heatMap[x][y] * 1;
 		for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
 				if (i == j || i == -j)
 					continue;
-				//System.out.println((x+i) + " " + (y+j));
 				int posX = x+i;
 				if (posX < 0 || posX > 5 || y+j < 0 || y+j > 8 || map[posX][y+j] == null || !(map[posX][y+j].getItem() instanceof ItemNuclearReactorComponent) || ((ItemNuclearReactorComponent)map[posX][y+j].getItem()).component.absorption == 0)
 					continue;
@@ -203,7 +246,7 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			}
 		}
 		if (num == 0)
-			return heat;
+			return newHeat;
 		
 		for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
@@ -215,13 +258,14 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 				if (newHeat - toTransfer < 0)
 					toTransfer = newHeat;
 				ItemNuclearReactorComponent component = (ItemNuclearReactorComponent) map[x+i][y+j].getItem();
-				toTransfer = Math.min(toTransfer, Math.min(component.component.absorption, item.component.distrib == -1 ? Integer.MAX_VALUE : item.component.distrib));
+				toTransfer = Math.min(toTransfer, Math.min(component.component.absorption == -1 ? Integer.MAX_VALUE : component.component.absorption, item.component.distrib == -1 ? Integer.MAX_VALUE : item.component.distrib));
+//				System.out.println(newHeat);
 				newHeat -= toTransfer;
+//				System.out.println(newHeat);
 				heatMap[x+i][y+j] += toTransfer;
 				heatMap[x][y] -= toTransfer;
 			}
 		}
-		
 		return newHeat;
 	}
 	
@@ -236,12 +280,9 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			coolMul *= ((ItemNuclearReactorComponent)map[x + 1][y].getItem()).component.coolMul;
 		if (y < 8 && map[x][y + 1] != null && map[x][y + 1].getItem() instanceof ItemNuclearReactorComponent)
 			coolMul *= ((ItemNuclearReactorComponent)map[x][y + 1].getItem()).component.coolMul;
-		coolGain *= Math.max(1F, coolMul);
-		//System.out.println(heatMap[x][y]);
+		coolGain *= coolMul;
 		heatMap[x][y] -= coolGain;
-		map[x][y].setItemDamage(map[x][y].getItemDamage() + heatMap[x][y]);
 		if (heatMap[x][y] < 0) {
-			hullHeat += heatMap[x][y];
 			heatMap[x][y] = 0;
 		}
 	}
@@ -257,8 +298,27 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 			heatMul *= ((ItemNuclearReactorComponent)map[x + 1][y].getItem()).component.heatMul;
 		if (y < 8 && map[x][y + 1] != null && map[x][y + 1].getItem() instanceof ItemNuclearReactorComponent)
 			heatMul *= ((ItemNuclearReactorComponent)map[x][y + 1].getItem()).component.heatMul;
-		heatGain *= Math.max(1F, heatMul);					
+		heatGain *= heatMul;					
+		if (item.component.fromHull) {
+			heatGain += Math.min(hullHeat, item.component.absorption);
+			hullHeat -= heatGain;
+		}
 		return heatGain;
+	}
+	
+	private int calcPower(ItemNuclearReactorComponent item, ItemStack[][] map, int x, int y) {
+		int powerGain = item.component.power;
+		float powerMul = 1;
+		if (x > 0 && map[x - 1][y] != null && map[x - 1][y].getItem() instanceof ItemNuclearReactorComponent)
+			powerMul *= ((ItemNuclearReactorComponent)map[x - 1][y].getItem()).component.powerMul;
+		if (y > 0 && map[x][y - 1] != null && map[x][y - 1].getItem() instanceof ItemNuclearReactorComponent)
+			powerMul *= ((ItemNuclearReactorComponent)map[x][y - 1].getItem()).component.powerMul;
+		if (x < 5 && map[x + 1][y] != null && map[x + 1][y].getItem() instanceof ItemNuclearReactorComponent)
+			powerMul *= ((ItemNuclearReactorComponent)map[x + 1][y].getItem()).component.powerMul;
+		if (y < 8 && map[x][y + 1] != null && map[x][y + 1].getItem() instanceof ItemNuclearReactorComponent)
+			powerMul *= ((ItemNuclearReactorComponent)map[x][y + 1].getItem()).component.powerMul;
+		powerGain *= powerMul;				
+		return powerGain;
 	}
 	
 	@Override
@@ -292,11 +352,37 @@ public class TileEntityNuclearReactor extends TileEntity implements ISidedInvent
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
-		
+		NBTTagList list = new NBTTagList();
+		compound.setInteger("HullHeat", hullHeat);
+		compound.setInteger("PrevHullHeat", prevTemp);
+		compound.setInteger("Energy", energy);
+		compound.setInteger("PrevEnergy", prevEnergy);
+		for (int i = 0; i < stack.length; i++) {
+			if (stack[i] == null)
+				continue;
+			NBTTagCompound tmp = new NBTTagCompound();
+			stack[i].writeToNBT(tmp);
+			tmp.setShort("Slot", (short)i);
+			tmp.setInteger("Heat", stackHeat[i]);
+			list.appendTag(tmp);
+		}
+		compound.setTag("Inventory", list);
 	}
 	
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
+		hullHeat = compound.getInteger("HullHeat");
+		prevTemp = compound.getInteger("PrevHullHeat");
+		energy = compound.getInteger("Energy");
+		prevEnergy = compound.getInteger("PrevEnergy");
+		NBTTagList list = compound.getTagList("Inventory", 10);
+		if (list == null)
+			return;
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound nbt = list.getCompoundTagAt(i);
+			stack[nbt.getShort("Slot")] = ItemStack.loadItemStackFromNBT(nbt);
+			stackHeat[nbt.getShort("Slot")] = nbt.getInteger("Heat");
+		}
 	}
 }

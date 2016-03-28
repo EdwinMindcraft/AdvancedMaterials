@@ -1,6 +1,5 @@
 package mod.mindcraft.advancedmaterials.inventory.container;
 
-import mod.mindcraft.advancedmaterials.integration.component.ItemNuclearReactorComponent;
 import mod.mindcraft.advancedmaterials.inventory.slot.SlotComponent;
 import mod.mindcraft.advancedmaterials.tileentity.TileEntityNuclearReactor;
 import net.minecraft.entity.player.EntityPlayer;

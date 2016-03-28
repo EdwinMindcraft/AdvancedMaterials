@@ -12,6 +12,8 @@ public class NuclearReactorComponent {
 	public final int heat, cool, power, absorption, distrib, minTemperature, maxTemperature, maxAbsorbedHeat, duration;
 	public final float heatMul, coolMul, powerMul;
 	
+	public boolean fromHull = false;
+	
 	/**
 	 * Reactor Component
 	 * 
@@ -47,6 +49,11 @@ public class NuclearReactorComponent {
 		this.distrib = distrib;
 	}
 	
+	public NuclearReactorComponent hullInterface() {
+		fromHull = true;
+		return this;
+	}
+	
 	/**
 	 * For fuel registration
 	 * 
@@ -80,5 +87,15 @@ public class NuclearReactorComponent {
 	 */
 	public static NuclearReactorComponent createHeatDispatcher(int absorption, int distrib, int maxAbsorbedHeat) {
 		return new NuclearReactorComponent(0, 0, 0, absorption, distrib, 1f, 1f, 1f, -1, -1, maxAbsorbedHeat, -1);
+	}
+	/**
+	 * For hull heat interface
+	 * 
+	 * @param absorption : maximum Heat this component can absorb from surroundings per tick (-1 for infinite)
+	 * @param distrib : maximum Heat this component can pass to his surroundings per tick (-1 for infinite)
+	 * @param maxAbsorbedHeat : maximum heat this component can absorb before breaking (-1 to disable)
+	 */
+	public static NuclearReactorComponent createHullHeatInterface (int absorption, int distrib, int maxAbsorbedHeat) {
+		return createHeatDispatcher(absorption, distrib, maxAbsorbedHeat).hullInterface();
 	}
 }

@@ -42,7 +42,7 @@ advmat.component.duration=§r§9Lifetime : §2%%v§9 ticks §2(%%time)
 advmat.component.produce=§r§9Will Produce : §4%%v§9 RF
 advmat.component.cost=§r§9Will Cost : §4%%v§9 RF
 advmat.component.heatTotal=§r§9Heat Produced over §2%%time §9ticks : §c%%v
-
+advmat.component.fromHull=§r§9Will take heat from hull
 
 advmat.ruby=Ruby
 advmat.sapphire=Sapphire

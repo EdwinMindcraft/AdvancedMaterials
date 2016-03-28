@@ -43,6 +43,8 @@ public class ItemNuclearReactorComponent extends Item {
 			tooltip.add(StatCollector.translateToLocal("advmat.component.minTemperature").replaceAll("%%v", "" + component.maxTemperature));
 		if (component.maxAbsorbedHeat != -1)
 			tooltip.add(StatCollector.translateToLocal("advmat.component.maxAbsorbedHeat").replaceAll("%%v", "" + component.maxAbsorbedHeat));
+		if (component.fromHull)
+			tooltip.add(StatCollector.translateToLocal("advmat.component.fromHull"));
 		if (component.duration != -1) {
 			int hours = (int) Math.floor(component.duration / 20 / 3600);
 			int minutes = (int) Math.floor(component.duration / 60 / 20);
